@@ -593,7 +593,7 @@
             reader.readAsBuffer ? reader.readAsBuffer(file) : reader.readAsArrayBuffer(file);
         }
 
-        async function saveFileDirectly() {
+        
          function saveFileDirectly() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
     const downloadAnchor = document.createElement('a');
