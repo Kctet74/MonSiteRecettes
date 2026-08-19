@@ -585,26 +585,15 @@
                             tips: tips
                         };
 
-                        recipes.push(newRecipe);
-                        applyFilters();
-                        alert(`Recette "${title}" enregistrée dans l'onglet [${targetCategory}] ! N'oubliez pas d'enregistrer.`);
-                    });
-            };
-            reader.readAsBuffer ? reader.readAsBuffer(file) : reader.readAsArrayBuffer(file);
-        }
-
-        
-         function saveFileDirectly() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "recettes.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    alert("✅ Le fichier recettes.json a été téléchargé dans vos Téléchargements !");
+      function saveFileDirectly() {
+    const jsonContent = JSON.stringify(recipes, null, 2);
+    
+    // Ouvre une fenêtre avec le texte brut du fichier JSON
+    const win = window.open("", "_blank");
+    win.document.write("<pre>" + jsonContent + "</pre>");
 }
-            
+        
+    
         
 
         loadRecipes();
