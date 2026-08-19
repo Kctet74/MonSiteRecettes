@@ -260,8 +260,8 @@
             </label>
             <input type="file" id="docxFileInput" accept=".docx" onchange="importDocxRecipe(event)" style="display:none;">
 
-            <button class="btn-action btn-secondary" onclick="exportJSON()">
-                💾 Télécharger recettes.json
+            <button class="btn-action btn-secondary" onclick="syncToGitHub()">
+                🚀 Enregistrer & Mettre à jour le site
             </button>
         </div>
 
@@ -285,29 +285,24 @@
     </div>
 
     <script>
+        const GITHUB_CONFIG = {
+            owner: 'Kctet74',
+            repo: 'MonSiteRecettes',
+            path: 'recettes.json',
+            token: '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'
+        };
+
         let recipes = [];
         let currentCategory = 'toutes';
 
-        // Charge d'abord le stockage local, puis le fichier du serveur si vide
         async function loadRecipes() {
-            const savedLocal = localStorage.getItem('my_recipes_data');
-            
-            if (savedLocal) {
-                recipes = JSON.parse(savedLocal);
-            } else {
-                try {
-                    const response = await fetch('recettes.json');
-                    recipes = await response.json();
-                    saveLocal();
-                } catch (e) {
-                    recipes = [];
-                }
+            try {
+                const response = await fetch('recettes.json?t=' + Date.now());
+                recipes = await response.json();
+            } catch (e) {
+                recipes = [];
             }
             applyFilters();
-        }
-
-        function saveLocal() {
-            localStorage.setItem('my_recipes_data', JSON.stringify(recipes));
         }
 
         function displayRecipes(recipeList) {
@@ -391,9 +386,9 @@
         function deleteRecipe(id) {
             if (confirm("Supprimer cette recette ?")) {
                 recipes = recipes.filter(r => r.id !== id);
-                saveLocal();
                 closeModal();
                 applyFilters();
+                alert("Recette supprimée sur l'écran. N'oubliez pas de cliquer sur '🚀 Enregistrer & Mettre à jour le site' pour enregistrer définitivement.");
             }
         }
 
@@ -434,22 +429,59 @@
                         };
 
                         recipes.push(newRecipe);
-                        saveLocal();
                         applyFilters();
-                        alert(`✅ "${title}" importée ! Elle s'ajoute à vos autres recettes.`);
+                        alert(`✅ "${title}" importée ! Cliquez sur '🚀 Enregistrer & Mettre à jour le site' pour valider en ligne.`);
                     });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "recettes.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+        // SYNCHRONISATION AUTOMATIQUE SUR GITHUB EN 1 CLIC
+        async function syncToGitHub() {
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
+            
+            try {
+                // 1. Récupérer le sha du fichier actuel
+                let sha = "";
+                const getRes = await fetch(url, {
+                    headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }
+                });
+                
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    sha = data.sha;
+                }
+
+                // 2. Encoder le JSON en base64 (UTF-8 compatible)
+                const jsonString = JSON.stringify(recipes, null, 2);
+                const bytes = new TextEncoder().encode(jsonString);
+                let binary = '';
+                bytes.forEach((b) => binary += String.fromCharCode(b));
+                const contentBase64 = btoa(binary);
+
+                // 3. Envoyer la mise à jour
+                const putRes = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: "Mise à jour automatique des recettes",
+                        content: contentBase64,
+                        sha: sha ? sha : undefined
+                    })
+                });
+
+                if (putRes.ok) {
+                    alert("🎉 Succès ! Vos recettes sont enregistrées et le site GitHub est à jour !");
+                } else {
+                    const errData = await putRes.json();
+                    alert("Erreur lors de la mise à jour : " + (errData.message || "Problème d'accès"));
+                }
+            } catch (err) {
+                alert("Erreur réseau : " + err.message);
+            }
         }
 
         loadRecipes();
