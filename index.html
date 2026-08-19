@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Recettes de Famille</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- Script Mammoth officiel CDNjs avec secours JSDelivr -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #FAF6F0;
@@ -364,10 +365,10 @@
             <label for="docxFileInput" class="btn-action">
                 📄 Importer une recette Word (.docx)
             </label>
-            <input type="file" id="docxFileInput" accept=".docx" style="display: none;" onchange="importDocxRecipe(event)">
+            <input type="file" id="docxFileInput" accept=".docx" onchange="importDocxRecipe(event)">
 
             <button class="btn-action btn-secondary" onclick="saveFileDirectly()">
-                💾 Télécharger recettes.json
+                💾 Voir / Copier le fichier JSON
             </button>
         </div>
 
@@ -390,6 +391,19 @@
     <!-- Modale de Recette -->
     <div id="recipeModal" class="modal">
         <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <!-- Modale d'Enregistrement Copie JSON -->
+    <div id="jsonModal" class="modal">
+        <div class="modal-content" style="padding: 2rem;">
+            <button class="close-btn" onclick="closeJsonModal()">&times;</button>
+            <h2 style="margin-bottom: 1rem;">Copier vos recettes</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Copiez l'intégralité du texte ci-dessous et collez-le directement dans votre fichier <code>recettes.json</code> sur GitHub :</p>
+            <textarea id="jsonOutput" style="width: 100%; height: 300px; font-family: monospace; padding: 1rem; border-radius: 8px; border: 1px solid var(--border);"></textarea>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button class="btn-action" onclick="copyJsonText()">📋 Copier le texte</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -522,6 +536,7 @@
         }
 
         function closeModal() { document.getElementById('recipeModal').style.display = 'none'; }
+        function closeJsonModal() { document.getElementById('jsonModal').style.display = 'none'; }
 
         function deleteRecipe(id) {
             if (confirm("Voulez-vous supprimer cette recette ?")) {
@@ -531,9 +546,12 @@
             }
         }
 
-        window.onclick = function(e) { if (e.target === document.getElementById('recipeModal')) closeModal(); }
+        window.onclick = function(e) { 
+            if (e.target === document.getElementById('recipeModal')) closeModal(); 
+            if (e.target === document.getElementById('jsonModal')) closeJsonModal(); 
+        }
 
-        // --- IMPORTATION DOCX FIXÉE ---
+        // --- IMPORTATION DOCX ---
         function importDocxRecipe(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -546,7 +564,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 if (typeof mammoth === 'undefined') {
-                    alert("Erreur : La bibliothèque Mammoth.js n'a pas pu être chargée. Vérifiez votre connexion internet.");
+                    alert("Erreur : La bibliothèque Mammoth ne peut pas charger. Vérifiez votre connexion internet.");
                     return;
                 }
 
@@ -554,7 +572,7 @@
                     .then(function(result) {
                         const lines = result.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
                         if (lines.length === 0) {
-                            alert("Le fichier Word sélectionné semble être vide.");
+                            alert("Fichier Word vide.");
                             return;
                         }
 
@@ -593,39 +611,33 @@
                         };
 
                         recipes.push(newRecipe);
-                        
-                        // Réinitialisation du sélecteur de fichier
                         document.getElementById('docxFileInput').value = '';
-                        
                         applyFilters();
-                        alert(`✅ Recette "${title}" importée dans [${targetCategory}] !\nN'oubliez pas de cliquer sur "Télécharger recettes.json" pour sauvegarder.`);
+                        alert(`✅ Recette "${title}" ajoutée dans [${targetCategory}] !`);
                     })
                     .catch(function(err) {
-                        alert("Erreur lors de la lecture du fichier Word : " + err.message);
+                        alert("Erreur de lecture Word : " + err.message);
                     });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- TELECHARGEMENT DU FICHIER JSON ---
+        // --- ENREGISTREMENT SANS BLOCAGE ---
         function saveFileDirectly() {
             if (recipes.length === 0) {
-                alert("⚠️ Aucune recette à enregistrer.");
+                alert("⚠️ Aucune recette présente.");
                 return;
             }
             const jsonText = JSON.stringify(recipes, null, 2);
-            const blob = new Blob([jsonText], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'recettes.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            document.getElementById('jsonOutput').value = jsonText;
+            document.getElementById('jsonModal').style.display = 'block';
+        }
 
-            alert("Fichier 'recettes.json' téléchargé !\n\nAllez sur GitHub et déposez ce fichier pour remplacer l'ancien.");
+        function copyJsonText() {
+            const copyText = document.getElementById("jsonOutput");
+            copyText.select();
+            document.execCommand("copy");
+            alert("✅ Texte copié ! Vous pouvez maintenant le coller dans recettes.json sur GitHub.");
         }
 
         loadRecipes();
