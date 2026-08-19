@@ -367,7 +367,7 @@
             <input type="file" id="docxFileInput" accept=".docx" style="display: none;" onchange="importDocxRecipe(event)">
 
             <button class="btn-action btn-secondary" onclick="saveFileDirectly()">
-                💾 Enregistrer dans recettes.json
+                💾 Télécharger recettes.json
             </button>
         </div>
 
@@ -375,12 +375,12 @@
         <div class="controls">
             <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Rechercher une recette, un ingrédient...">
             <div class="filter-buttons">
-                <button class="filter-btn active" onclick="filterCategory('toutes')">Toutes</button>
-                <button class="filter-btn" onclick="filterCategory('Entrées')">🥗 Entrées</button>
-                <button class="filter-btn" onclick="filterCategory('Plats')">🍲 Plats</button>
-                <button class="filter-btn" onclick="filterCategory('Desserts')">🍰 Desserts</button>
-                <button class="filter-btn" onclick="filterCategory('Terrines')">🥓 Terrines & Pâtés</button>
-                <button class="filter-btn" onclick="filterCategory('Confitures')">🍯 Confitures</button>
+                <button class="filter-btn active" data-cat="toutes" onclick="filterCategory('toutes')">Toutes</button>
+                <button class="filter-btn" data-cat="Entrées" onclick="filterCategory('Entrées')">🥗 Entrées</button>
+                <button class="filter-btn" data-cat="Plats" onclick="filterCategory('Plats')">🍲 Plats</button>
+                <button class="filter-btn" data-cat="Desserts" onclick="filterCategory('Desserts')">🍰 Desserts</button>
+                <button class="filter-btn" data-cat="Terrines" onclick="filterCategory('Terrines')">🥓 Terrines & Pâtés</button>
+                <button class="filter-btn" data-cat="Confitures" onclick="filterCategory('Confitures')">🍯 Confitures</button>
             </div>
         </div>
 
@@ -434,7 +434,7 @@
         function filterCategory(cat) {
             currentCategory = cat;
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.includes(cat) || (cat === 'toutes' && btn.innerText === 'Toutes'));
+                btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
             });
             applyFilters();
         }
@@ -533,23 +533,30 @@
 
         window.onclick = function(e) { if (e.target === document.getElementById('recipeModal')) closeModal(); }
 
-        // --- IMPORTATION : LA RECETTE PREND DIRECTEMENT L'ONGLET SÉLECTIONNÉ ---
+        // --- IMPORTATION DOCX FIXÉE ---
         function importDocxRecipe(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Déterminer la catégorie exacte selon l'onglet actif
-            let targetCategory = "Plats"; // Sécurité par défaut
+            let targetCategory = "Plats"; 
             if (currentCategory !== 'toutes') {
                 targetCategory = currentCategory;
             }
 
             const reader = new FileReader();
             reader.onload = function(e) {
+                if (typeof mammoth === 'undefined') {
+                    alert("Erreur : La bibliothèque Mammoth.js n'a pas pu être chargée. Vérifiez votre connexion internet.");
+                    return;
+                }
+
                 mammoth.extractRawText({ arrayBuffer: e.target.result })
                     .then(function(result) {
                         const lines = result.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                        if (lines.length === 0) return;
+                        if (lines.length === 0) {
+                            alert("Le fichier Word sélectionné semble être vide.");
+                            return;
+                        }
 
                         const title = lines[0];
                         let description = "";
@@ -575,7 +582,7 @@
                         const newRecipe = {
                             id: Date.now(),
                             title: title,
-                            category: targetCategory, // La catégorie de l'onglet actif !
+                            category: targetCategory,
                             description: description,
                             prepTime: "30 min",
                             cookTime: "45 min",
@@ -585,24 +592,41 @@
                             tips: tips
                         };
 
-   function saveFileDirectly() {
-    if (recipes.length === 0) {
-        alert("⚠️ Aucune recette à enregistrer.");
-        return;
-    }
-    const jsonText = JSON.stringify(recipes, null, 2);
-    
-    // Création d'une zone de texte sur la page pour copier facilement
-    const textWindow = window.open("", "_blank");
-    if (!textWindow) {
-        prompt("Copiez le texte ci-dessous (Ctrl+C) puis collez-le dans recettes.json sur GitHub :", jsonText);
-    } else {
-        textWindow.document.write("<h3>Copiez tout ce texte et collez-le dans votre fichier recettes.json sur GitHub :</h3>");
-        textWindow.document.write("<textarea style='width:100%; height:80vh; font-family:monospace;'>" + jsonText + "</textarea>");
-    }
-}
-    
-        
+                        recipes.push(newRecipe);
+                        
+                        // Réinitialisation du sélecteur de fichier
+                        document.getElementById('docxFileInput').value = '';
+                        
+                        applyFilters();
+                        alert(`✅ Recette "${title}" importée dans [${targetCategory}] !\nN'oubliez pas de cliquer sur "Télécharger recettes.json" pour sauvegarder.`);
+                    })
+                    .catch(function(err) {
+                        alert("Erreur lors de la lecture du fichier Word : " + err.message);
+                    });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- TELECHARGEMENT DU FICHIER JSON ---
+        function saveFileDirectly() {
+            if (recipes.length === 0) {
+                alert("⚠️ Aucune recette à enregistrer.");
+                return;
+            }
+            const jsonText = JSON.stringify(recipes, null, 2);
+            const blob = new Blob([jsonText], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recettes.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert("Fichier 'recettes.json' téléchargé !\n\nAllez sur GitHub et déposez ce fichier pour remplacer l'ancien.");
+        }
 
         loadRecipes();
     </script>
