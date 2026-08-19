@@ -585,14 +585,15 @@
                             tips: tips
                         };
 
-      function saveFileDirectly() {
-    const jsonContent = JSON.stringify(recipes, null, 2);
-    
-    // Ouvre une fenêtre avec le texte brut du fichier JSON
+   function saveFileDirectly() {
+    if (recipes.length === 0) {
+        alert("⚠️ Aucune recette à enregistrer pour l'instant.");
+        return;
+    }
+    const jsonText = JSON.stringify(recipes, null, 2);
     const win = window.open("", "_blank");
-    win.document.write("<pre>" + jsonContent + "</pre>");
-}
-        
+    win.document.write("<pre style='word-wrap: break-word; white-space: pre-wrap;'>" + jsonText + "</pre>");
+}     
     
         
 
