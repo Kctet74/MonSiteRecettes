@@ -261,7 +261,7 @@
             <input type="file" id="docxFileInput" accept=".docx" onchange="importDocxRecipe(event)" style="display:none;">
 
             <button class="btn-action btn-secondary" onclick="exportJSON()">
-                💾 Télécharger recettes.json (Tout Sauvegarder)
+                💾 Télécharger recettes.json
             </button>
         </div>
 
@@ -288,37 +288,26 @@
         let recipes = [];
         let currentCategory = 'toutes';
 
-        // Charger depuis le stockage local ET le fichier JSON hébergé
+        // Charge d'abord le stockage local, puis le fichier du serveur si vide
         async function loadRecipes() {
-            const localData = localStorage.getItem('my_family_recipes');
+            const savedLocal = localStorage.getItem('my_recipes_data');
             
-            try {
-                const response = await fetch('recettes.json');
-                const serverData = await response.json();
-                
-                if (localData) {
-                    const parsedLocal = JSON.parse(localData);
-                    // Fusionner les listes sans doublons d'ID
-                    const combined = [...serverData];
-                    parsedLocal.forEach(item => {
-                        if (!combined.some(r => r.id === item.id || r.title === item.title)) {
-                            combined.push(item);
-                        }
-                    });
-                    recipes = combined;
-                } else {
-                    recipes = serverData;
+            if (savedLocal) {
+                recipes = JSON.parse(savedLocal);
+            } else {
+                try {
+                    const response = await fetch('recettes.json');
+                    recipes = await response.json();
+                    saveLocal();
+                } catch (e) {
+                    recipes = [];
                 }
-            } catch (e) {
-                recipes = localData ? JSON.parse(localData) : [];
             }
-
-            syncAndSave();
             applyFilters();
         }
 
-        function syncAndSave() {
-            localStorage.setItem('my_family_recipes', JSON.stringify(recipes));
+        function saveLocal() {
+            localStorage.setItem('my_recipes_data', JSON.stringify(recipes));
         }
 
         function displayRecipes(recipeList) {
@@ -402,7 +391,7 @@
         function deleteRecipe(id) {
             if (confirm("Supprimer cette recette ?")) {
                 recipes = recipes.filter(r => r.id !== id);
-                syncAndSave();
+                saveLocal();
                 closeModal();
                 applyFilters();
             }
@@ -445,9 +434,9 @@
                         };
 
                         recipes.push(newRecipe);
-                        syncAndSave(); // Sauvegarde immédiate
+                        saveLocal();
                         applyFilters();
-                        alert(`✅ "${title}" importée et conservée dans la mémoire du navigateur !`);
+                        alert(`✅ "${title}" importée ! Elle s'ajoute à vos autres recettes.`);
                     });
             };
             reader.readAsArrayBuffer(file);
