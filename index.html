@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Recettes de Famille</title>
-    <!-- Script Mammoth officiel CDNjs avec secours JSDelivr -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <style>
         :root {
@@ -98,11 +97,6 @@
             background: white;
         }
 
-        .search-bar:focus {
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 0 4px rgba(224, 109, 83, 0.15);
-        }
-
         .filter-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -183,16 +177,6 @@
             font-weight: 700;
         }
 
-        .recipe-meta {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: auto;
-            padding-top: 0.8rem;
-            border-top: 1px dashed var(--border);
-            display: flex;
-            gap: 1rem;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -231,53 +215,7 @@
             z-index: 10;
         }
 
-        .modal-header-img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-
         .modal-body { padding: 2rem; }
-
-        .recipe-intro-box {
-            background: white;
-            padding: 1.2rem;
-            border-radius: 12px;
-            border-left: 5px solid var(--accent-orange);
-            font-size: 1.05rem;
-            font-style: italic;
-            color: #4A4A4A;
-            margin-bottom: 1.8rem;
-        }
-
-        .meta-pills {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .pill {
-            background: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: 1px solid var(--border);
-        }
-
-        .category-select {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: 1px solid var(--accent-orange);
-            background: white;
-            color: var(--accent-orange);
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            outline: none;
-        }
 
         .chapter-box {
             background: white;
@@ -288,9 +226,6 @@
         }
 
         .chapter-title {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--primary);
@@ -299,57 +234,16 @@
             border-bottom: 2px solid var(--primary-light);
         }
 
-        .ingredients-list {
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 0.8rem;
-        }
-
         .ingredients-list li {
             background: var(--primary-light);
             padding: 0.6rem 1rem;
             border-radius: 10px;
-            font-size: 0.95rem;
-        }
-
-        .steps-list {
+            margin-bottom: 0.5rem;
             list-style: none;
-            counter-reset: step-counter;
         }
 
-        .steps-list li {
-            position: relative;
-            padding-left: 3.2rem;
-            margin-bottom: 1.2rem;
-            font-size: 1rem;
-        }
-
-        .steps-list li::before {
-            counter-increment: step-counter;
-            content: counter(step-counter);
-            position: absolute;
-            left: 0; top: 0;
-            width: 2.2rem; height: 2.2rem;
-            background-color: var(--accent-orange);
-            color: white;
-            font-weight: bold;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tips-card {
-            background: #FFF9E6;
-            border: 1px solid #FFE599;
-            border-radius: 14px;
-            padding: 1.2rem;
-            color: #7A5200;
-            font-size: 0.95rem;
-            display: flex;
-            gap: 0.8rem;
-        }
+        .steps-list { list-style-type: decimal; padding-left: 1.5rem; }
+        .steps-list li { margin-bottom: 0.8rem; }
     </style>
 </head>
 <body>
@@ -360,27 +254,25 @@
     </header>
 
     <div class="container">
-        <!-- Panneau d'Actions -->
         <div class="import-panel">
             <label for="docxFileInput" class="btn-action">
                 📄 Importer une recette Word (.docx)
             </label>
-            <input type="file" id="docxFileInput" accept=".docx" onchange="importDocxRecipe(event)">
+            <input type="file" id="docxFileInput" accept=".docx" onchange="importDocxRecipe(event)" style="display:none;">
 
-            <button class="btn-action btn-secondary" onclick="saveFileDirectly()">
-                💾 Voir / Copier le fichier JSON
+            <button class="btn-action btn-secondary" onclick="exportJSON()">
+                💾 Télécharger recettes.json (Tout Sauvegarder)
             </button>
         </div>
 
-        <!-- Recherche et Filtres -->
         <div class="controls">
-            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Rechercher une recette, un ingrédient...">
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Rechercher une recette...">
             <div class="filter-buttons">
                 <button class="filter-btn active" data-cat="toutes" onclick="filterCategory('toutes')">Toutes</button>
                 <button class="filter-btn" data-cat="Entrées" onclick="filterCategory('Entrées')">🥗 Entrées</button>
                 <button class="filter-btn" data-cat="Plats" onclick="filterCategory('Plats')">🍲 Plats</button>
                 <button class="filter-btn" data-cat="Desserts" onclick="filterCategory('Desserts')">🍰 Desserts</button>
-                <button class="filter-btn" data-cat="Terrines" onclick="filterCategory('Terrines')">🥓 Terrines & Pâtés</button>
+                <button class="filter-btn" data-cat="Terrines" onclick="filterCategory('Terrines')">🥓 Terrines</button>
                 <button class="filter-btn" data-cat="Confitures" onclick="filterCategory('Confitures')">🍯 Confitures</button>
             </div>
         </div>
@@ -388,33 +280,45 @@
         <div class="recipes-grid" id="recipesGrid"></div>
     </div>
 
-    <!-- Modale de Recette -->
     <div id="recipeModal" class="modal">
         <div class="modal-content" id="modalContent"></div>
-    </div>
-
-    <!-- Modale d'Enregistrement Copie JSON -->
-    <div id="jsonModal" class="modal">
-        <div class="modal-content" style="padding: 2rem;">
-            <button class="close-btn" onclick="closeJsonModal()">&times;</button>
-            <h2 style="margin-bottom: 1rem;">Copier vos recettes</h2>
-            <p style="margin-bottom: 1rem; color: var(--text-muted);">Copiez l'intégralité du texte ci-dessous et collez-le directement dans votre fichier <code>recettes.json</code> sur GitHub :</p>
-            <textarea id="jsonOutput" style="width: 100%; height: 300px; font-family: monospace; padding: 1rem; border-radius: 8px; border: 1px solid var(--border);"></textarea>
-            <div style="margin-top: 1rem; text-align: right;">
-                <button class="btn-action" onclick="copyJsonText()">📋 Copier le texte</button>
-            </div>
-        </div>
     </div>
 
     <script>
         let recipes = [];
         let currentCategory = 'toutes';
 
-        function loadRecipes() {
-            fetch('recettes.json')
-                .then(r => r.json())
-                .then(data => { recipes = data; applyFilters(); })
-                .catch(() => { recipes = []; applyFilters(); });
+        // Charger depuis le stockage local ET le fichier JSON hébergé
+        async function loadRecipes() {
+            const localData = localStorage.getItem('my_family_recipes');
+            
+            try {
+                const response = await fetch('recettes.json');
+                const serverData = await response.json();
+                
+                if (localData) {
+                    const parsedLocal = JSON.parse(localData);
+                    // Fusionner les listes sans doublons d'ID
+                    const combined = [...serverData];
+                    parsedLocal.forEach(item => {
+                        if (!combined.some(r => r.id === item.id || r.title === item.title)) {
+                            combined.push(item);
+                        }
+                    });
+                    recipes = combined;
+                } else {
+                    recipes = serverData;
+                }
+            } catch (e) {
+                recipes = localData ? JSON.parse(localData) : [];
+            }
+
+            syncAndSave();
+            applyFilters();
+        }
+
+        function syncAndSave() {
+            localStorage.setItem('my_family_recipes', JSON.stringify(recipes));
         }
 
         function displayRecipes(recipeList) {
@@ -422,7 +326,7 @@
             grid.innerHTML = '';
 
             if (recipeList.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">Aucune recette dans cette catégorie.</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;">Aucune recette enregistrée.</div>';
                 return;
             }
 
@@ -435,10 +339,6 @@
                     <div class="recipe-content">
                         <span class="tag">${recipe.category || 'Plats'}</span>
                         <h2 class="recipe-title">${recipe.title}</h2>
-                        <div class="recipe-meta">
-                            <span>⏱️ Prep : ${recipe.prepTime || '-'}</span>
-                            <span>🔥 Cuisson : ${recipe.cookTime || '-'}</span>
-                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -457,8 +357,7 @@
             const search = document.getElementById('searchInput').value.toLowerCase();
             const filtered = recipes.filter(r => {
                 const matchCat = currentCategory === 'toutes' || r.category === currentCategory;
-                const matchSearch = r.title.toLowerCase().includes(search) || 
-                                    (r.ingredients && r.ingredients.some(ing => ing.toLowerCase().includes(search)));
+                const matchSearch = r.title.toLowerCase().includes(search);
                 return matchCat && matchSearch;
             });
             displayRecipes(filtered);
@@ -473,171 +372,95 @@
             const modalContent = document.getElementById('modalContent');
             modalContent.innerHTML = `
                 <button class="close-btn" onclick="closeModal()">&times;</button>
-                <img src="${recipe.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600'}" alt="${recipe.title}" class="modal-header-img">
-                
                 <div class="modal-body">
-                    <div style="margin-bottom: 0.8rem;">
-                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Catégorie : </label>
-                        <select class="category-select" onchange="updateCategory(${recipe.id}, this.value)">
-                            <option value="Entrées" ${recipe.category === 'Entrées' ? 'selected' : ''}>🥗 Entrées</option>
-                            <option value="Plats" ${recipe.category === 'Plats' ? 'selected' : ''}>🍲 Plats</option>
-                            <option value="Desserts" ${recipe.category === 'Desserts' ? 'selected' : ''}>🍰 Desserts</option>
-                            <option value="Terrines" ${recipe.category === 'Terrines' ? 'selected' : ''}>🥓 Terrines & Pâtés</option>
-                            <option value="Confitures" ${recipe.category === 'Confitures' ? 'selected' : ''}>🍯 Confitures</option>
-                        </select>
-                    </div>
-
-                    <h1 style="font-size: 2rem; color: var(--text-dark); margin-bottom: 1rem;">${recipe.title}</h1>
-                    
-                    ${recipe.description ? `<div class="recipe-intro-box">“ ${recipe.description} ”</div>` : ''}
-
-                    <div class="meta-pills">
-                        <div class="pill">⏱️ <strong>Préparation :</strong> ${recipe.prepTime || '30 min'}</div>
-                        <div class="pill">🔥 <strong>Cuisson :</strong> ${recipe.cookTime || '45 min'}</div>
-                    </div>
+                    <h1 style="font-size: 2rem; margin-bottom: 1rem;">${recipe.title}</h1>
+                    <p><strong>Catégorie :</strong> ${recipe.category}</p>
+                    <p style="margin-bottom: 1.5rem;">${recipe.description || ''}</p>
 
                     <div class="chapter-box">
-                        <div class="chapter-title"><span>🥗</span> Ingrédients Nécessaires</div>
+                        <div class="chapter-title">Ingrédients</div>
                         <ul class="ingredients-list">
                             ${(recipe.ingredients || []).map(ing => `<li>🔸 ${ing}</li>`).join('')}
                         </ul>
                     </div>
 
                     <div class="chapter-box">
-                        <div class="chapter-title"><span>👩‍🍳</span> Préparation Pas à Pas</div>
+                        <div class="chapter-title">Préparation</div>
                         <ol class="steps-list">
                             ${(recipe.steps || []).map(step => `<li>${step}</li>`).join('')}
                         </ol>
                     </div>
 
-                    ${recipe.tips ? `
-                    <div class="tips-card">
-                        <span style="font-size: 1.5rem;">💡</span>
-                        <div>
-                            <strong>L'astuce du Chef :</strong>
-                            <p style="margin-top: 0.2rem;">${recipe.tips}</p>
-                        </div>
-                    </div>` : ''}
-
-                    <div style="margin-top: 2rem; text-align: right;">
-                        <button class="btn-action btn-danger" onclick="deleteRecipe(${recipe.id})">🗑️ Supprimer cette recette</button>
-                    </div>
+                    <button class="btn-action btn-danger" onclick="deleteRecipe(${recipe.id})">🗑️ Supprimer</button>
                 </div>
             `;
             document.getElementById('recipeModal').style.display = 'block';
         }
 
-        function updateCategory(id, newCat) {
-            const recipe = recipes.find(r => r.id === id);
-            if (recipe) {
-                recipe.category = newCat;
-                applyFilters();
-            }
-        }
-
         function closeModal() { document.getElementById('recipeModal').style.display = 'none'; }
-        function closeJsonModal() { document.getElementById('jsonModal').style.display = 'none'; }
 
         function deleteRecipe(id) {
-            if (confirm("Voulez-vous supprimer cette recette ?")) {
+            if (confirm("Supprimer cette recette ?")) {
                 recipes = recipes.filter(r => r.id !== id);
+                syncAndSave();
                 closeModal();
                 applyFilters();
             }
         }
 
-        window.onclick = function(e) { 
-            if (e.target === document.getElementById('recipeModal')) closeModal(); 
-            if (e.target === document.getElementById('jsonModal')) closeJsonModal(); 
-        }
-
-        // --- IMPORTATION DOCX ---
         function importDocxRecipe(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            let targetCategory = "Plats"; 
-            if (currentCategory !== 'toutes') {
-                targetCategory = currentCategory;
-            }
+            let targetCategory = currentCategory === 'toutes' ? "Plats" : currentCategory;
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                if (typeof mammoth === 'undefined') {
-                    alert("Erreur : La bibliothèque Mammoth ne peut pas charger. Vérifiez votre connexion internet.");
-                    return;
-                }
-
                 mammoth.extractRawText({ arrayBuffer: e.target.result })
                     .then(function(result) {
                         const lines = result.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                        if (lines.length === 0) {
-                            alert("Fichier Word vide.");
-                            return;
-                        }
+                        if (lines.length === 0) return;
 
                         const title = lines[0];
-                        let description = "";
                         let ingredients = [];
                         let steps = [];
-                        let tips = "";
                         let mode = 'intro';
 
                         for (let i = 1; i < lines.length; i++) {
                             const line = lines[i];
                             const lower = line.toLowerCase();
-
                             if (lower.includes('ingrédient')) { mode = 'ingredients'; continue; }
-                            if (lower.includes('procédé') || lower.includes('préparation') || lower.includes('étape')) { mode = 'steps'; continue; }
-                            if (lower.includes('conseil') || lower.includes('astuce')) { mode = 'tips'; continue; }
+                            if (lower.includes('préparation') || lower.includes('étape')) { mode = 'steps'; continue; }
 
-                            if (mode === 'intro') { description += (description ? " " : "") + line; }
-                            else if (mode === 'ingredients') { ingredients.push(line.replace(/^[•\-\*]\s*/, '')); }
-                            else if (mode === 'steps') { steps.push(line); }
-                            else if (mode === 'tips') { tips += " " + line; }
+                            if (mode === 'ingredients') ingredients.push(line);
+                            else if (mode === 'steps') steps.push(line);
                         }
 
                         const newRecipe = {
                             id: Date.now(),
                             title: title,
                             category: targetCategory,
-                            description: description,
-                            prepTime: "30 min",
-                            cookTime: "45 min",
-                            image: "",
                             ingredients: ingredients,
-                            steps: steps,
-                            tips: tips
+                            steps: steps
                         };
 
                         recipes.push(newRecipe);
-                        document.getElementById('docxFileInput').value = '';
+                        syncAndSave(); // Sauvegarde immédiate
                         applyFilters();
-                        alert(`✅ Recette "${title}" ajoutée dans [${targetCategory}] !`);
-                    })
-                    .catch(function(err) {
-                        alert("Erreur de lecture Word : " + err.message);
+                        alert(`✅ "${title}" importée et conservée dans la mémoire du navigateur !`);
                     });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- ENREGISTREMENT SANS BLOCAGE ---
-        function saveFileDirectly() {
-            if (recipes.length === 0) {
-                alert("⚠️ Aucune recette présente.");
-                return;
-            }
-            const jsonText = JSON.stringify(recipes, null, 2);
-            document.getElementById('jsonOutput').value = jsonText;
-            document.getElementById('jsonModal').style.display = 'block';
-        }
-
-        function copyJsonText() {
-            const copyText = document.getElementById("jsonOutput");
-            copyText.select();
-            document.execCommand("copy");
-            alert("✅ Texte copié ! Vous pouvez maintenant le coller dans recettes.json sur GitHub.");
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "recettes.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
         loadRecipes();
