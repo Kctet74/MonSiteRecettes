@@ -110,5 +110,45 @@
       "3.3. L'arrêt de la cuisson :Débarrassez immédiatement.",
       "À la sonnerie, transférez immédiatement le mélange dans un petit récipient. Ne le laissez pas dans le bol, car la chaleur résiduelle du couteau et du fond continuerait de cuire les pignons et risquerait de les brûler."
     ]
+  },
+  {
+    "id": 1787150906807,
+    "title": "Le Bœuf Bourguignon Traditionnel au TM6",
+    "category": "Plats",
+    "ingredients": [
+      "La Viande & la Garniture :",
+      "800 g de bœuf pour bourguignon (paleron, gîte ou macreuse), coupé en cubes de 3 à 4 cm",
+      "150 g de lardons fumés",
+      "200 g de champignons de Paris (coupés en quartiers)",
+      "2 belles carottes (coupées en rondelles d'1 cm)",
+      "1 gros oignon & 2 gousses d'ail",
+      "1 bouquet garni (thym, laurier)",
+      "Le Liant & le Vin :",
+      "400 g de vin rouge corsé (type Bourgogne ou Pinot Noir)",
+      "200 g de fond de veau (ou d'eau + 2 c. à café de fond de veau en poudre)",
+      "30 g de farine de blé (pour \"singer\" la viande)",
+      "20 g de beurre ou un filet d'huile d'olive",
+      "Sel fin et poivre du moulin"
+    ],
+    "steps": [
+      "1. Le hachage et les arômes",
+      "Mettez l'oignon coupé en deux et les gousses d'ail dans le bol.",
+      "Programmez 5 secondes / Vitesse 5. Raclez les parois du bol à l'aide de la spatule.",
+      "Ajoutez le beurre (ou l'huile) et les lardons. Programmez 4 minutes / 120°C /  Sens inverse / Vitesse 1 (sans le gobelet doseur) pour faire rissoler le tout.",
+      "2. Le rissolage de la viande",
+      "Ajoutez les cubes de bœuf et les rondelles de carottes dans le bol.",
+      "Ajoutez la farine en la saupoudrant bien sur la viande.",
+      "Programmez 5 minutes / 100°C /  Sens inverse / Vitesse 0.5 (toujours sans le gobelet) pour saisir légèrement les morceaux.",
+      "3. Le mijotage long",
+      "Versez le vin rouge, le fond de veau, le bouquet garni, le sel et le poivre.",
+      "Programmez 60 minutes / 95°C /  Sens inverse / Vitesse Cuillère (). Placez le panier de cuisson sur le couvercle à la place du gobelet pour permettre une réduction parfaite de la sauce tout en évitant les projections.",
+      "4. L'ajout des champignons",
+      "À la sonnerie, ajoutez les quartiers de champignons de Paris dans le bol.",
+      "Programmez de nouveau 20 minutes / 95°C /  Sens inverse / Vitesse Cuillère () (toujours avec le panier sur le couvercle).",
+      "Vérifiez la cuisson de la viande : elle doit se détacher à la fourchette. Si nécessaire, prolongez de 10 à 15 minutes.",
+      "L'Astuce de l'Échappée",
+      "Le bœuf bourguignon est encore meilleur réchauffé ! Si vous avez le temps, préparez-le la veille et relancez simplement le robot pendant 15 minutes / 90°C /  Sens inverse / Vitesse Cuillère juste avant de passer à table.",
+      "Servez ce plat rustique et fumant avec des tagliatelles fraîches ou une belle purée de pommes de terre maison. Bon appétit !"
+    ]
   }
 ]
